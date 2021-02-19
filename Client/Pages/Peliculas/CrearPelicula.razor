@@ -1,0 +1,74 @@
+﻿@page "/peliculas/crear"
+@inject NavigationManager navigationManager
+@inject HttpClient httpClient
+@inject IRepositorio repositorio
+@inject IMostrarMensajes mostrarMensajes
+
+<h3>CrearPelicula</h3>
+@if (MostrarFormulario) {
+<FormularIoPeliculas Pelicula="Pelicula" OnValidSubmit="Crear" GenerosNoSeleccionados="GenerosNoSeleccionados"></FormularIoPeliculas>
+}
+else
+{
+    <text>Cargando...</text>
+}
+@code {
+    public Pelicula Pelicula= new Pelicula();
+    private List<Genero> GenerosNoSeleccionados = new List<Genero>();
+    private bool MostrarFormulario { get; set; }=false;
+
+
+    protected async  override Task OnInitializedAsync()
+    {
+        var respuestahttp = await repositorio.Get<List<Genero>>("api/Genero");
+        GenerosNoSeleccionados = respuestahttp.Response;
+        MostrarFormulario = true;
+
+    }
+    async Task Crear()
+    {
+        //Console.WriteLine(navigationManager.BaseUri);
+        //navigationManager.NavigateTo("pelicula");
+        if (Pelicula.EnCartelera == true)
+        {
+            Console.WriteLine("la pelicula esta en cartelera");
+
+        }
+        else
+        {
+            Console.WriteLine("la pelicula no ESTA EN CARTELERA");
+        }
+
+
+
+        //MultipartFormDataContent _contenido = new MultipartFormDataContent();
+
+
+        //_contenido.Add(JsonContent.Create(this.Pelicula, this.Pelicula.GetType()), "pelicula");
+
+        //HttpRequestMessage _meessage = new HttpRequestMessage(HttpMethod.Post, "api/Pelicula/Post");
+
+        //_meessage.Content = _contenido;
+        //var _peticion = await httpClient.SendAsync(_meessage);
+
+        //->lo que envio
+        var respuesta = await repositorio.Post<Pelicula,int>("api/Pelicula/Post",Pelicula);
+        if (respuesta.Error)                            //->lo que recibo
+        {
+            await  mostrarMensajes.MostrarMensajeError(await respuesta.GetBody());
+        }
+        else
+        {
+            //para conseguir el id de la pelicula, vamos a hacer un metodo post que me permita
+            // deserializar una respuesta http
+            var PeliculaID = respuesta.Response;
+            //  var serializada = 
+
+            var idePeliCasero = Pelicula.Id;
+            // ahora lo recibido en la respuesta ... osea la response del objeto respuesta es un int , 
+            // por que usamos este  metodo                            lo enviado    lo devuelto por .Response
+            // public async Task<HttpResponseWrapper<TResponse>> Post<T,            TResponse>(string url, T enviar)
+            navigationManager.NavigateTo($"/peliculas/{PeliculaID}/{ Pelicula.Titulo.Replace(" ","-")}");
+        }
+    }
+}

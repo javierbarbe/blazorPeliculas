@@ -1,0 +1,12 @@
+﻿@if (string.IsNullOrEmpty(URL))
+{
+    <img src="imagenes/interrogacion.jpg"  alt="imagen simbolo pregunta"/>
+}
+else
+{
+    <img src="@URL"  alt="Poster" style="width:225px; height:300px;"/>
+}
+
+@code {
+    [Parameter] public string URL { get; set; }
+}

@@ -1,0 +1,26 @@
+﻿@page "/"
+
+@inject IRepositorio repositorio
+@using static BlazorUdemy.Client.Shared.MainLayout;
+@inject IJSRuntime JS
+
+<h3>Peliculas</h3>
+
+
+    <ListadoPeliculas Peliculas="listaPelis" />
+
+
+
+
+
+@code {
+    public List<Pelicula> listaPelis;
+
+    protected override void OnInitialized()
+    {
+        listaPelis = repositorio.ObtenerPeliculas();
+    }
+
+}
+
+

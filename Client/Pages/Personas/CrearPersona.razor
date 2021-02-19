@@ -1,0 +1,34 @@
+﻿@page "/personas/crear"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensajes mostrarMensajes
+<h3>Crear Persona</h3>
+<FormularioPersona persona="persona" OnValidSubmit="Crear"></FormularioPersona>
+
+@code {
+    Persona persona= new Persona();
+
+    protected async Task Crear()
+    {
+        Console.WriteLine("Estamos creando a la persona");
+
+        //Console.WriteLine(persona.Nombre);
+        //Console.WriteLine(persona.FechaNacimiento);
+        var respuesta = await repositorio.Post("api/persona/Post", persona);
+        // apunto al server Controllers PersonaController
+        Console.WriteLine(respuesta.HttpResponseMessage);
+        if (respuesta.Error)
+        {
+            //var body = await respuesta.HttpResponseMessage.Content.ReadAsStringAsync();
+            //Console.WriteLine(body);
+            // sin los await da un error de string task<string>
+           await mostrarMensajes.MostrarMensajeError(await respuesta.GetBody());
+
+        }
+        else
+        {
+            navigationManager.NavigateTo("/personas");
+        }
+
+    }
+}

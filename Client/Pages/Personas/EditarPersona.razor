@@ -1,0 +1,38 @@
+﻿@page "/personas/editar/{IdPersona:int}"
+@page "/personas/editar/{IdPersona:int}/{NombrePersona}"
+<h3>Editar Persona</h3>
+<FormularioPersona persona="persona"OnValidSubmit="Editar"></FormularioPersona>
+@code {
+    [Parameter] public int IdPersona { get; set; }
+    [Parameter] public string NombrePersona { get; set; }
+    Persona persona;
+
+    protected override void OnInitialized()
+    {       if (NombrePersona != null)
+        {
+            this.persona = new Persona()
+            {
+                Id = IdPersona,
+                Nombre = NombrePersona
+            };
+            Console.WriteLine("El nombre antiguo era " + NombrePersona);
+        }
+        else
+        {
+            this.persona = new Persona()
+            {
+                Id = IdPersona
+
+            };
+            Console.WriteLine("la url no tiene nombre de persona, solo id y es: " + persona.Id);
+        }
+    }
+
+    protected void Editar()
+    {
+        Console.WriteLine("Editando a la persona");
+        Console.WriteLine(persona.Nombre);
+        Console.WriteLine(persona.FechaNacimiento);
+
+    }
+}

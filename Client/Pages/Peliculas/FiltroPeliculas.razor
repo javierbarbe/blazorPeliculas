@@ -1,0 +1,84 @@
+﻿@page "/peliculas/buscar"
+@inject IRepositorio repositorio
+<h3>Filtro Peliculas</h3>
+
+<div class="form-inline" >
+    <div class="form-group mb-2">
+        <label for="titulo" class="sr-only">Titulo</label>
+        <input class="form-control" type="text" id="titulo" placeholder="Titulo Pelicula" 
+               @bind-value="titulopelicula"
+               @bind-value:event="oninput"
+               @onkeypress="@((KeyboardEventArgs e)=> TituloKeyPress(e))"/>
+    </div>
+    <div class="form-group mx-sm-3 mb-2">
+        <select class="form-control" @bind="generoseleccionado">
+            <option value="0">--Seleccione un genero--</option>
+            @foreach (Genero genero in listaGeneros)
+            {
+                <option value="@genero.Id">@genero.Nombre</option>
+            }
+        </select>
+    </div>
+    <div class="form-group mb-2">
+        <input type="checkbox" name="estrenos" id="estrenos" @bind="futurosEstrenos" />
+        <label class="form-check-label" for="estrenos">Futuros Estrenos</label>
+      
+        <input type="checkbox" name="cartelera" id="cartelera" @bind="enCartelera" />
+        <label class="form-check-label" for="cartelera"> En Cartelera</label>
+
+        <input type="checkbox" name="masVotadas" id="masVotadas" @bind="masVotadas" />
+        <label class="form-check-label" for="masVotadas"> Mas votadas</label>
+
+        <input type="button" class="btn btn-primary mb-2 mx-sm-3"  value="Filtrar" @onclick="Filtrar" />
+        <input type="button"  class="btn btn-danger mb-2" value="Limpiar" @onclick="Limpiar" />
+    </div>
+</div>
+    <ListadoPeliculas Peliculas="ListaPeliculas" />
+    @code {
+        private List<Genero> listaGeneros= new List<Genero>();
+        private string titulopelicula;
+        private int generoseleccionado;
+        private bool futurosEstrenos;
+        private bool enCartelera;
+        private bool masVotadas;
+
+        private List<Pelicula> ListaPeliculas;
+
+        protected override void OnInitialized()
+        {
+            ListaPeliculas = repositorio.ObtenerPeliculas();
+            listaGeneros.Add(new Genero() { Nombre = "penes", Id = 1 });
+                    }
+        #region "------------------- Metodo filtrar al pulsar enter -------"
+        private void TituloKeyPress(KeyboardEventArgs e)
+        {
+            if (e.Key == "Enter")
+            {
+                Filtrar();
+            }
+        }
+        #endregion
+
+        #region "----------------Metodos de los botones--------------------"
+        private void Filtrar()
+        {
+            ListaPeliculas = repositorio.ObtenerPeliculas().Where(peli => peli.Titulo.ToLower().Contains(titulopelicula.ToLower())).ToList();
+            Console.WriteLine($"La pelicula filtrada es {titulopelicula}");
+            Console.WriteLine($"El genero es {generoseleccionado}");
+            Console.WriteLine($"en Cartelera vale {enCartelera}");
+            Console.WriteLine($"mas votada vale {masVotadas}");
+
+        }
+
+        private void Limpiar()
+        {
+            ListaPeliculas = repositorio.ObtenerPeliculas();
+            titulopelicula = "";
+            generoseleccionado = 0;
+            enCartelera = false;
+            masVotadas = false;
+            futurosEstrenos = false;
+        }
+        #endregion
+
+    }

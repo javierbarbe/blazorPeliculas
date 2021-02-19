@@ -1,0 +1,165 @@
+﻿@inject IJSRuntime IJSRuntime
+@using System.IO
+@inject IRepositorio repositorio
+<EditForm Model="Pelicula" OnValidSubmit="OnDataAnnotationsValidated">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label>Titulo:</label>
+        <div>
+            <InputText @bind-Value="@Pelicula.Titulo" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Fecha Lanzamiento</label>
+        <div>
+            <InputDate @bind-Value="@Pelicula.Lanzamiento" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>En Cartelera</label>
+        <InputCheckbox @bind-Value="Pelicula.EnCartelera" />
+    </div>
+    <div class="form-group form-markdown">
+        <InputMarkdown @bind-Value="@Pelicula.Resumen"
+                       For="@(() => Pelicula.Resumen)"
+                       Label="Resumen" />
+    </div>
+    <div class="form-group">
+        awqui va el file
+        @*<input type="file"
+               accept="image/png, image/jpeg, image/jpg"
+               id="selectorImagen"
+               name="imagen"
+               @onchange="PrevisualizarImagen" />
+        aqui acaba el file*@
+        <img src="@bitesDevueltos" id="foto2" alt="no se puede msotrar foto" />
+        aqui deberia ir la foto
+        
+        <Input32Img Label="Foto" ImagenSeleccionada="ImagenSeleccionada" ImagenTemporal=""></Input32Img>
+    </div>
+    <div class="form-group">
+        <label>Géneros</label>
+        <div>
+            <SelectorMultiple Seleccionados="Seleccionados" NoSeleccionados="NoSeleccionados"></SelectorMultiple>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Actores:</label>
+        <div>
+            <SelectorMultipleTypeahead Context="persona"
+                                       SearchMethod="BuscarActores"
+                                       ElementosSeleccionados="ActoresSeleccionados">
+                <MyListTemplate>
+                 @persona.Nombre
+                    
+                </MyListTemplate>
+                <MyResultTemplate>
+                    @*<img width="50" height="50" src="@persona.Foto" alt="no hay foto"/>*@
+                    @persona.Nombre
+                </MyResultTemplate>
+            </SelectorMultipleTypeahead>
+        </div>
+    </div>
+    <button class="btn btn-success">Guardar </button>
+
+    @*<button id="selectorImagen2" ><div > MI DIV A PULSAR</div></button>*@
+</EditForm>
+
+
+
+
+@code {
+    private bool cartelera { get; set; }
+
+    [Parameter] public Pelicula Pelicula { get; set; }
+
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter] public List<Genero> GenerosSeleccionados { get; set; }
+    [Parameter] public List<Genero> GenerosNoSeleccionados { get; set; }
+
+    [Parameter] public List<Persona> ActoresSeleccionados { get; set; } = new List<Persona>();
+
+    private List<SelectorMultipleModel> Seleccionados { get; set; } = new List<SelectorMultipleModel>();
+    private List<SelectorMultipleModel> NoSeleccionados { get; set; } = new List<SelectorMultipleModel>();
+
+
+    #region subir fotos
+
+    private void ImagenSeleccionada(string imagenBase64)
+    {
+        Pelicula.Imagen = imagenBase64;
+    }
+    private string imagenTemporal;
+    #endregion
+
+    #region validacion
+
+    private async Task OnDataAnnotationsValidated()
+    {
+        Pelicula.GenerosPelicula = Seleccionados.Select(x => new GeneroPelicula { GeneroId = int.Parse(x.Llave) }).ToList();
+        // obtener lsitado actores
+        Pelicula.PeliculasActor = ActoresSeleccionados.Select(x => new PeliculaActor { PersonaId = x.Id, Personaje = x.Personaje }).ToList();
+        // establecer la imagen temporal a null si no haay poster
+
+        if (!string.IsNullOrWhiteSpace(Pelicula.Imagen)) { imagenTemporal = null; }
+        // bytesASrc();
+        await OnValidSubmit.InvokeAsync(null);
+    }
+    #endregion
+
+
+    protected override void OnInitialized()
+    {
+        if (GenerosSeleccionados != null)
+            Seleccionados = GenerosSeleccionados.Select(x => new SelectorMultipleModel(x.Id.ToString(), x.Nombre)).ToList();
+        foreach (var item in GenerosNoSeleccionados)
+        {
+            NoSeleccionados.Add(new SelectorMultipleModel(item.Id.ToString(), item.Nombre));
+        }
+        if (!string.IsNullOrWhiteSpace(Pelicula.Imagen))
+        {
+            imagenTemporal = Pelicula.Imagen;
+            Pelicula.Imagen = null;
+        }
+    }
+
+    #region subir fotos
+    private String bitesDevueltos = "";
+    protected async Task PrevisualizarImagen()
+    {
+        await IJSRuntime.InvokeVoidAsync("Ficheros.previsualizacionFotos", "selectorImagen", "foto2");
+        // this.Pelicula.Imagen = await IJSRuntime.InvokeAsync<String>("inputFileControl.GetFileData", "selectorImagen");
+        //this.bitesDevueltos = respuesta.ToString();
+
+
+    }
+
+    private void bytesASrc()
+    {
+        using (MemoryStream memoryStream =  new MemoryStream(4 * 1024))
+        {
+            var bytesImagen = new byte[memoryStream.Length];
+            bytesImagen = System.Text.Encoding.UTF8.GetBytes(Pelicula.Imagen);
+            memoryStream.Read(bytesImagen, 0, (int)memoryStream.Length);
+            string imagenBase64 = Convert.ToBase64String(bytesImagen);
+            //  Pelicula.Imagen = imagenBase64;
+        }
+    }
+
+
+    //private void ImagenSeleccionada(string imagenBase64)
+    //{
+    //    Pelicula.Imagen = imagenBase64;
+    //}
+
+    #endregion
+
+    private async Task<IEnumerable<Persona>> BuscarActores(string searchText)
+    {
+        var responseHttp = await repositorio.Get<List<Persona>>($"api/Persona/Buscar/{searchText}");
+        return responseHttp.Response;
+
+    }
+}
+

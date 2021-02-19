@@ -1,0 +1,52 @@
+﻿<EditForm Model="persona" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="form-group">
+        <label>Nombre:</label>
+        <div>
+            <InputText @bind-Value="@persona.Nombre" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Fecha Nacimiento</label>
+        <div>
+            <InputDate @bind-Value="@persona.FechaNacimiento" />
+        </div>
+    </div>
+ 
+    <div class="form-group form-markdown">
+        <InputMarkdown @bind-Value="@persona.Descripcion"
+                       For="@(()=> persona.Descripcion)"
+                       Label="Descripcion"/>
+    </div>
+    <div class="form-group">
+        <Input32Img ImagenSeleccionada="ImagenSeleccionada" ImagenTemporal="@persona.Foto" Label="Foto"></Input32Img>
+    </div>
+    <button class="btn btn-success">Guardar </button>
+
+</EditForm>
+
+@code {
+    [Parameter]public Persona persona { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+
+        if (!string.IsNullOrWhiteSpace(persona.Foto))
+        {
+            imagenTemporal = persona.Foto;
+            persona.Foto = null;
+        }
+    }
+    #region subir fotos
+
+    private void ImagenSeleccionada(string imagenBase64)
+    {
+        persona.Foto = imagenBase64;
+    }
+    private string imagenTemporal;
+    #endregion
+    }
+

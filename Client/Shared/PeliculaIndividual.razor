@@ -1,0 +1,40 @@
+﻿<div style="margin-right:2%; margin-bottom:10px; text-align:center;">
+    <a href="@urlPelicula">
+        <Img URL="@peli.Imagen" />
+        @*<img src="@peli.Imagen" alt="Poster" style="width:225px; height:300px; "/>*@
+    </a>
+    <p style="max-width:225px; height:44px; font-size:15px;font-weight:bold">
+            <a href="@urlPelicula">@peli.TituloCortado</a></p>
+    <div>
+        <a class="btn btn-info">Editar </a>
+        <button type="button" 
+                class="btn btn-danger"
+                @onclick="@(()=>EliminarPelicula.InvokeAsync(@peli))">Borrar
+        </button>
+    </div>
+</div>
+
+@code {
+    private string urlPelicula = string.Empty;
+    protected override void OnInitialized()
+    {
+        urlPelicula = $"pelicula/";
+    }
+    [Parameter] public Pelicula peli { get; set; }
+
+    //EVENT CALLBACKS... los uso para pasar metodos como parametros
+    //  [Parameter] public EventCallback EliminarPelicula { get; set; }
+    // para saber cual pelicula estoy borrando requiero que tenga un parametro... en evntCallback
+    [Parameter] public EventCallback<Pelicula> EliminarPelicula { get; set; }
+    // estos callbacks disponen de un metodo InvokeAsync que permite que se le pasen parametros a trave de una lambda
+    // pasaria de estar asi ==> <button @onclick="EliminarPelicula">Eliminar</button>
+
+    // el boton quedaria asi ==>   <button @onclick="@(()=>EliminarPelicula.InvokeAsync(peli))">Eliminar</button>
+    // ahora ELiminarPelicula seria un EventCallback
+    // despues en el metodo de eliminar pelicula de ListadoPeliculas tengo que indicarle que recibe un parametro de tipo
+    // pelicula
+
+    // USAMOS CALLBACKS PARA
+    // para ejecutar un metodo del compoennte padre en respuesta de un evento ocurrido en el compoennte hijo
+
+}

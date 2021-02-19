@@ -1,0 +1,32 @@
+﻿@page "/generos/crear"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensajes mostrarMensajes
+
+<h3>Crear Genero</h3>
+<FormularioGenero nuevoGenero="nuevoGenero" OnValidSubmit="Crear"/>
+
+
+@code {
+    Genero nuevoGenero = new Genero();
+
+    private  async Task Crear()
+    {
+        var httpreponse = await repositorio.Post("api/Genero", nuevoGenero);
+        if (httpreponse.Error)
+        {
+            //var body = await httpreponse.HttpResponseMessage.Content.ReadAsStringAsync();
+            // Console.WriteLine(body);
+
+            // lo mismo que en CrearPersona.razor pero en dos pasos
+            var body = await httpreponse.GetBody();
+            await mostrarMensajes.MostrarMensajeError(body);
+        }
+        else
+        {
+            navigationManager.NavigateTo("/generos");
+            Console.WriteLine($"Se ha creado el genero {nuevoGenero.Nombre}");
+
+        }
+    }
+}

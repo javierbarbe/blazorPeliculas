@@ -1,0 +1,45 @@
+﻿@page "/personas"
+@inject IRepositorio repositorio
+<h3>IndicePersonas</h3>
+<a href="/personas/crear">Crear Persona</a>
+<a href="/personas/editar/22">Editar Persona</a>
+
+<ListadoGenerico Listado="ListaPersonas">
+    <HayRegistrosCompleto>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Nombre</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ListaPersonas)
+                {
+                    <tr>
+                        <td>
+                            <a class="btn btn-success">Editar</a>
+                            <button class="btn btn-danger">Borrar</button>
+                        </td>
+                        <td>@item.Nombre</td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </HayRegistrosCompleto>
+
+</ListadoGenerico>
+
+@code {
+
+    private List<Persona> ListaPersonas { get; set; }
+
+    protected  async override Task OnInitializedAsync()
+    {
+        var responseHttp = await repositorio.Get<List<Persona>>("api/Persona/Get");
+        this.ListaPersonas = responseHttp.Response;
+    }
+
+
+}

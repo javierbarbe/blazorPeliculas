@@ -1,0 +1,24 @@
+﻿<input type="text" placeholder="placeholder por defecto" @attributes="ParametrosAdicionales"/>
+
+@code {
+    // esto de Parameter(CaptureUnmatchedValues=true)] permite que blazor analice los parametros que le indicas a la etiqueta
+    // y si no coincide con los que has creado tú explictamente, les  buscara en los propios de html css
+    //  requiere que aqui, en el componente indiquemos esto : @attributes="ParametrosAdicionales" , 
+    // si no está, no casca aunque no lo reconozca ... pero no va a funcionar como deberia en html y no va a dar error
+    [Parameter(CaptureUnmatchedValues =true)]
+    public Dictionary<string, object> ParametrosAdicionales { get; set; }
+
+
+    // tambien podria deffinir yo a mano todos los atributos ... sin necesidad de @attribute... pero sería mas tedioso
+    // puedo definir valores por defecto auqi en el componente directamente definiendo el parametro del tagg
+    // EJEMPLO : 
+    //<input type="text" placeholder="placeholder por defecto" @attributes="ParametrosAdicionales"/>
+
+    // la prioridad  va de derecha a izuqierda en la deffinicion del componente... es decir... que si pusiera placeholder="..." en ultimo
+    // lugar... sería ese el que utilizase y pisaria el que me intentaran mandar desde el componente padre
+    // EJEMPLO 
+    // AUNQUE EN EL COMPONENTE PADRE PUSIERA 
+    // <EjemploTextbox placeholder="mi placeholderPadre"/>
+    // al estar definido asi ==> <input type="text"  @attributes="ParametrosAdicionales" placeholder="placeholder por defecto"/>
+    // la visualizacion en la pag web seria "placeholder por defecto"
+}

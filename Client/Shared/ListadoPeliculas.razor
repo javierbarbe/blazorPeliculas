@@ -1,0 +1,48 @@
+﻿
+@inject IJSRuntime js
+<div style="display:flex; flex-wrap:wrap; align-items:center;">
+    <ListadoGenerico Listado="Peliculas">
+        
+        <HayRegistros Context="peli">
+            <PeliculaIndividual peli="peli" EliminarPelicula="EliminarPelicula" />
+        </HayRegistros>
+
+    </ListadoGenerico>
+
+</div>
+<Confirmacion  onCancel="onCancel" onConfirm="onConfirm" @ref="confirmacion">
+    <div>El childcontent... ¿Desea borrar la pelicula? @peliculaABorrar.Titulo</div>
+</Confirmacion>
+
+@code {
+
+    Confirmacion confirmacion;
+    [Parameter] public List<Pelicula> Peliculas { get; set; }
+
+     void EliminarPelicula(Pelicula peliculaAEliminar)
+    {
+        confirmacion.Mostrar();
+        peliculaABorrar = peliculaAEliminar;
+        //var confirmado = await js.InvokeAsync<bool>("confirm", $"¿Desea eliminar la pelicula {peliculaAEliminar.Titulo}??");
+        //var confir2 = await js.Confirm($"¿Desea realmente eliminar esta peli {peliculaAEliminar.Titulo}?");
+        //if (confir2)
+        //{
+        //    Peliculas.Remove(peliculaAEliminar);
+        //    Console.WriteLine($"Se ha eliminado la pelicula...{peliculaAEliminar.Titulo}");
+        //}
+    }
+
+    Pelicula peliculaABorrar;
+    public void onConfirm()
+    {
+        confirmacion.Ocultar();
+        Peliculas.Remove(peliculaABorrar);
+    }
+
+    public void onCancel()
+    {
+        confirmacion.Ocultar();
+    }
+
+
+}
